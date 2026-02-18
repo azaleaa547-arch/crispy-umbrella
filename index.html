@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramadan Cute Notes 🌙✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#fef9f4; --bg2:#ffe4e1; --accent:#f59ca9; --card-bg:rgba(255,255,255,0.8); --text:#5e503f;
+}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:linear-gradient(135deg,var(--bg1),var(--bg2));font-family:'Poppins',sans-serif;color:var(--text);}
+.card{background:var(--card-bg);backdrop-filter:blur(12px);padding:40px 30px;border-radius:30px;max-width:400px;width:90%;text-align:center;box-shadow:0 15px 35px rgba(0,0,0,0.1);position:relative;transition:0.4s ease;}
+.title{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:10px;}
+.subtitle{font-size:0.9rem;opacity:0.7;margin-bottom:25px;}
+button{padding:10px 22px;border:none;border-radius:25px;cursor:pointer;font-weight:500;margin:5px;transition:transform 0.2s ease;}
+button:hover{transform:scale(1.05);}
+.btn-primary{background:var(--accent);color:white;}
+textarea{width:100%;padding:12px;border-radius:20px;border:1px solid #ddd;margin-top:15px;font-family:'Poppins',sans-serif;resize:none;}
+.note-box{margin-top:15px;padding:15px;border-radius:20px;background:#fff5f5;font-size:0.9rem;}
+.notes-list{margin-top:20px;text-align:left;max-height:200px;overflow:auto;}
+.note-item{padding:10px;background:#fff0f0;margin-bottom:8px;border-radius:15px;font-size:0.85rem;}
+</style>
+</head>
+<body>
+
+<div class="card" id="main-card">
+  <div id="content" class="fade">
+    <div class="title">Hi kamu 🌙</div>
+    <div class="subtitle">Siap membuka sesuatu yang manis hari ini?</div>
+    <button class="btn-primary" onclick="nextSlide()">Yes 💖</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<script>
+// ================= Firebase Config ===================
+const firebaseConfig = {
+  apiKey: "ISI_APIKEY_MU",
+  authDomain: "ISI_PROJECTID.firebaseapp.com",
+  databaseURL: "https://ISI_PROJECTID-default-rtdb.firebaseio.com",
+  projectId: "ISI_PROJECTID",
+  storageBucket: "ISI_PROJECTID.appspot.com",
+  messagingSenderId: "ISI_MESSAGINGID",
+  appId: "ISI_APPID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+// =====================================================
+
+let slide = 0;
+const slides = [
+  "Ciyeee... penasaran ya 😌",
+  "Bulan suci sudah tiba ✨",
+  "Waktunya berburu takjil favorit 🍲",
+  "Semoga hatimu selalu tenang 🤍",
+  "Selamat menunaikan puasa 🌙",
+  "Tulis catatan manismu hari ini ✨"
+];
+
+function nextSlide(){
+  const content = document.getElementById("content");
+  content.innerHTML = "";
+  if(slide<slides.length){
+    if(slide===slides.length-1){
+      content.innerHTML = `
+        <div class="title">🌸 Catatan Publik</div>
+        <div class="subtitle">${slides[slide]}</div>
+        <input id="name" placeholder="Nama kamu" style="width:100%;padding:8px;margin-bottom:8px;border-radius:15px;border:1px solid #ddd;">
+        <textarea id="note" rows="3" placeholder="Tulis pesanmu..."></textarea>
+        <button class="btn-primary" onclick="saveNote()">Simpan ✨</button>
+        <div class="notes-list" id="notesList"></div>
+      `;
+      loadNotes();
+    } else {
+      content.innerHTML = `
+        <div class="title">${slides[slide]}</div>
+        <button class="btn-primary" onclick="nextSlide()">Lanjut 🌷</button>
+      `;
+    }
+    slide++;
+  }
+}
+
+function saveNote(){
+  const name = document.getElementById("name").value.trim();
+  const note = document.getElementById("note").value.trim();
+  if(name===""||note===""){alert("Tulis nama dan pesan dulu 😌");return;}
+  const newNote = db.ref("notes").push();
+  newNote.set({name:name, text:note});
+  document.getElementById("note").value="";
+  document.getElementById("name").value="";
+}
+
+function loadNotes(){
+  const list = document.getElementById("notesList");
+  db.ref("notes").on("value", snapshot=>{
+    list.innerHTML="";
+    snapshot.forEach(child=>{
+      const val = child.val();
+      const div = document.createElement("div");
+      div.className="note-item";
+      div.innerHTML=`<strong>${val.name}:</strong> ${val.text}`;
+      list.prepend(div);
+    });
+  });
+}
+</script>
+
+</body>
+  </html>
